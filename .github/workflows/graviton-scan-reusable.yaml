@@ -1,0 +1,105 @@
+name: 'Deploy'
+on:
+  workflow_call:
+    inputs:
+      CLIENT_REPOSITORY: 
+        default: 'aws/porting-advisor-for-graviton'
+        type: string
+      BRANCH: 
+        default: 'main'
+        type: string
+
+env:
+  SLACK_WEBHOOK_URL: 'https://hooks.slack.com/services/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'
+
+
+jobs:
+  clone-repo:
+    runs-on: ubuntu-latest
+
+    permissions:
+        id-token: write
+        contents: read
+
+    steps:
+    - name: Checkout scripts
+        uses: actions/checkout@v2
+        with:
+          path: scripts
+          repository: ${{input.CLIENT_REPOSITORY}}
+          ref: ${{input.BRANCH}}
+
+      - name: Clone Client Repository
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ input.CLIENT_REPOSITORY }}
+          path: repo-to-scan
+      
+      - name: Checkout AWS porting-advisor-for-graviton Repository
+        uses: actions/checkout@v2
+        with:
+          repository: aws/porting-advisor-for-graviton 
+          path: porting-advisor
+
+      - name: Setup Python environment
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10' 
+
+           
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+        working-directory: porting-advisor
+
+      - name: Generate Report
+        run: |
+          
+          repo='${{ input.CLIENT_REPOSITORY }}'
+          scan_repo=$(echo $repo | cut -d/ -f2)
+          repo_name=$(echo $repo | sed 's/\//-/g')
+          cmd="python src/porting-advisor.py ../repo-to-scan --output ../repo-to-scan/report-${repo_name}.html"
+          echo $cmd
+          python3 /home/runner/work/workflows/workflows/porting-advisor/src/porting-advisor.py /home/runner/work/workflows/workflows/repo-to-scan --output /home/runner/work/workflows/workflows/repo-to-scan/report-${repo_name}.html
+          cat ../repo-to-scan/report-${repo_name}.html
+          python3 /home/runner/work/workflows/workflows/porting-advisor/src/porting-advisor.py /home/runner/work/workflows/workflows/repo-to-scan > /home/runner/work/workflows/workflows/repo-to-scan/report-${repo_name}.txt
+          
+        working-directory: porting-advisor
+
+      - name: Send Slack notification
+        env:
+          SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
+          CLIENT_REPOSITORY: ${{ input.CLIENT_REPOSITORY }}
+        run: |
+          repo="${CLIENT_REPOSITORY}"
+          scan_repo=$(echo $repo | cut -d/ -f2)
+          repo_name=$(echo $repo | sed 's/\//-/g')
+          html_content1=$(sed 's/"/\\"/g' /home/runner/work/workflows/workflows/repo-to-scan/report-${repo_name}.txt)
+          txt_content=$(cat /home/runner/work/workflows/workflows/repo-to-scan/report-${repo_name}.txt)
+         
+          curl -X POST -H 'Content-type: application/json' -d '{"text": "Se generó un nuevo informe '$CLIENT_REPOSITORY' \n'"$(cat /home/runner/work/workflows/workflows/repo-to-scan/report-${repo_name}.txt)"'"}' ${SLACK_WEBHOOK_URL}
+ 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Set Environment Variable
+        run: echo "REPO_NAME=$(echo $repo | sed 's/\//-/g')" >> $GITHUB_ENV
+        env:
+          repo: ${{ input.CLIENT_REPOSITORY }}
+
+      - name: Upload Report to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          repo="${CLIENT_REPOSITORY}"
+          scan_repo=$(echo $repo | cut -d/ -f2)
+          repo_name=$(echo $repo | sed 's/\//-/g')
+          aws s3 cp /home/runner/work/workflows/workflows/repo-to-scan/report-${repo_name}.html s3://prod-scan-result/repositories/report-${repo_name}.html
+        
+
