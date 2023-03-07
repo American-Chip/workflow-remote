@@ -22,7 +22,7 @@ jobs:
         contents: read
 
     steps:
-    - name: Checkout scripts
+      - name: Checkout scripts
         uses: actions/checkout@v2
         with:
           path: scripts
