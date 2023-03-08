@@ -11,6 +11,7 @@ on:
 
 env:
   SLACK_WEBHOOK_URL: 'https://hooks.slack.com/services/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'
+  workspace: ${{ github.workspace }}
 
 
 jobs:
@@ -53,6 +54,8 @@ jobs:
         working-directory: porting-advisor
 
       - name: Generate Report
+        env:
+          workspace: ${{ env.workspace }} 
         run: |
           
           repo='${{ inputs.CLIENT_REPOSITORY }}'
@@ -60,10 +63,12 @@ jobs:
           repo_name=$(echo $repo | sed 's/\//-/g')
           cmd="python src/porting-advisor.py ../repo-to-scan --output ../repo-to-scan/report-${repo_name}.html"
           echo $cmd
-          python3 /home/runner/work/workflows/workflows/porting-advisor/src/porting-advisor.py /home/runner/work/workflows/workflows/repo-to-scan --output /home/runner/work/workflows/workflows/repo-to-scan/report-${repo_name}.html
+          python3 ${workspace}/porting-advisor/src/porting-advisor.py ${workspace}/repo-to-scan --output ${workspace}repo-to-scan/report-${repo_name}.html
           cat ../repo-to-scan/report-${repo_name}.html
-          python3 /home/runner/work/workflows/workflows/porting-advisor/src/porting-advisor.py /home/runner/work/workflows/workflows/repo-to-scan > /home/runner/work/workflows/workflows/repo-to-scan/report-${repo_name}.txt
+          python3 ${workspace}/porting-advisor/src/porting-advisor.py ${workspace}/repo-to-scan > /${workspace}/repo-to-scan/report-${repo_name}.txt
           
+          
+
         working-directory: porting-advisor
 
       - name: Send Slack notification
