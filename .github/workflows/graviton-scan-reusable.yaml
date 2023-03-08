@@ -66,10 +66,7 @@ jobs:
           python3 ${workspace}/porting-advisor/src/porting-advisor.py ${workspace}/repo-to-scan --output ${workspace}repo-to-scan/report-${repo_name}.html
           cat ../repo-to-scan/report-${repo_name}.html
           python3 ${workspace}/porting-advisor/src/porting-advisor.py ${workspace}/repo-to-scan > /${workspace}/repo-to-scan/report-${repo_name}.txt
-          
-          
-
-        working-directory: porting-advisor
+      working-directory: porting-advisor
 
       - name: Send Slack notification
         env:
