@@ -10,9 +10,9 @@ on:
         type: string
 
 env:
-  SLACK_WEBHOOK_URL: 'https://hooks.slack.com/services/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'
+  SLACK_WEBHOOK_URL: 'https://hooks.slack.com/services/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'
   workspace: ${{ github.workspace }}
-  
+
 
 jobs:
   clone-repo:
