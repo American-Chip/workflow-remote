@@ -12,6 +12,7 @@ on:
 env:
   SLACK_WEBHOOK_URL: 'https://hooks.slack.com/services/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'
   workspace: ${{ github.workspace }}
+  OIDC: arn:aws:iam::817091419779:role/GHA_SCAN
 
 
 jobs:
@@ -48,7 +49,7 @@ jobs:
     - name: 'configure AWS credentials'
       uses: aws-actions/configure-aws-credentials@v1-node16
       with:
-        role-to-assume: arn:aws:iam::817091419779:role/GHA_SCAN
+        role-to-assume: ${{ env.OIDC }} 
         role-session-name: 'commit=${{ github.sha }}'
         role-duration-seconds: 1100
         aws-region:  us-east-1  
