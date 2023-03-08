@@ -74,7 +74,7 @@ jobs:
         repo="${CLIENT_REPOSITORY}"
         scan_repo=$(echo $repo | cut -d/ -f2)
         repo_name=$(echo $repo | sed 's/\//-/g')
-        html_content1=$(sed 's/"/\\"/g' ${workspace}repo-to-scan/report-${repo_name}.txt)
+        html_content1=$(sed 's/"/\\"/g' ${workspace}/repo-to-scan/report-${repo_name}.txt)
         txt_content=$(cat ${workspace}/repo-to-scan/report-${repo_name}.txt)
        
         curl -X POST -H 'Content-type: application/json' -d '{"text": "Se generó un nuevo informe '$CLIENT_REPOSITORY' \n'"$(cat ${workspace}/repo-to-scan/report-${repo_name}.txt)"'"}' ${SLACK_WEBHOOK_URL}
