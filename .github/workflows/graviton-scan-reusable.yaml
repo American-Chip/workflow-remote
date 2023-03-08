@@ -22,7 +22,7 @@ jobs:
         id-token: write
         contents: read
 
-    steps:
+  steps:
       - name: Checkout scripts
         uses: actions/checkout@v2
         with:
