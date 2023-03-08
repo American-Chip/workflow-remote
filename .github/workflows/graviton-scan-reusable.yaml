@@ -94,7 +94,6 @@ jobs:
         repo: ${{ inputs.CLIENT_REPOSITORY }}
 
     - name: Upload Report to S3
-      
       run: |
         repo="${CLIENT_REPOSITORY}"
         scan_repo=$(echo $repo | cut -d/ -f2)
