@@ -13,7 +13,6 @@ env:
   SLACK_WEBHOOK_URL: 'https://hooks.slack.com/services/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'
   workspace: ${{ github.workspace }}
 
-
 jobs:
   clone-repo:
     runs-on: ubuntu-latest
@@ -23,6 +22,7 @@ jobs:
         contents: read
 
     steps:
+      
       - name: Checkout scripts
         uses: actions/checkout@v2
         with:
