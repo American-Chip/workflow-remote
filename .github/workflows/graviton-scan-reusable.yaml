@@ -72,14 +72,15 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
           CLIENT_REPOSITORY: ${{ inputs.CLIENT_REPOSITORY }}
+          workspace: ${{ env.workspace }} 
         run: |
           repo="${CLIENT_REPOSITORY}"
           scan_repo=$(echo $repo | cut -d/ -f2)
           repo_name=$(echo $repo | sed 's/\//-/g')
-          html_content1=$(sed 's/"/\\"/g' /home/runner/work/workflows/workflows/repo-to-scan/report-${repo_name}.txt)
-          txt_content=$(cat /home/runner/work/workflows/workflows/repo-to-scan/report-${repo_name}.txt)
+          html_content1=$(sed 's/"/\\"/g' ${workspace}repo-to-scan/report-${repo_name}.txt)
+          txt_content=$(cat ${workspace}/repo-to-scan/report-${repo_name}.txt)
          
-          curl -X POST -H 'Content-type: application/json' -d '{"text": "Se generó un nuevo informe '$CLIENT_REPOSITORY' \n'"$(cat /home/runner/work/workflows/workflows/repo-to-scan/report-${repo_name}.txt)"'"}' ${SLACK_WEBHOOK_URL}
+          curl -X POST -H 'Content-type: application/json' -d '{"text": "Se generó un nuevo informe '$CLIENT_REPOSITORY' \n'"$(cat ${workspace}/repo-to-scan/report-${repo_name}.txt)"'"}' ${SLACK_WEBHOOK_URL}
  
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
