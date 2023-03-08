@@ -98,5 +98,5 @@ jobs:
         repo='${{ inputs.CLIENT_REPOSITORY }}'
         scan_repo=$(echo $repo | cut -d/ -f2)
         repo_name=$(echo $repo | sed 's/\//-/g')
-        aws s3 cp /home/runner/work/workflows/workflows/repo-to-scan/report-${repo_name}.html s3://prod-scan-result/repositories/report-${repo_name}.html
+        aws s3 cp ${workspace}/repo-to-scan/report-${repo_name}.html s3://prod-scan-result/repositories/report-${repo_name}.html
         
