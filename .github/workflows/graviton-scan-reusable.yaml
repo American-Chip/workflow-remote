@@ -1,7 +1,7 @@
 name: 'Deploy'
 on:
   workflow_call:
-    inputss:
+    inputs:
       CLIENT_REPOSITORY: 
         default: 'aws/porting-advisor-for-graviton'
         type: string
