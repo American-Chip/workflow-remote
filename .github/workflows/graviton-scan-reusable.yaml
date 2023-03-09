@@ -24,9 +24,11 @@ env:
 jobs:
   clone-repo:
     runs-on: ubuntu-latest
+    
     permissions:
-      id-token: write
+      id-token: none
       contents: read
+    
     steps:
     - name: Checkout scripts
       uses: actions/checkout@v2
