@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     
     permissions:
-      id-token: none
+      id-token: write
       contents: read
     
     steps:
@@ -52,8 +52,6 @@ jobs:
 
     - name: 'configure AWS credentials'
       uses: aws-actions/configure-aws-credentials@v1-node16
-      permissions:
-        id-token: write
       with:
         role-to-assume: ${{ env.OIDC }} 
         role-session-name: 'commit=${{ github.sha }}'
