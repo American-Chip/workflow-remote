@@ -79,20 +79,6 @@ jobs:
         python3 ${workspace}/porting-advisor/src/porting-advisor.py ${workspace}/repo-to-scan > /${workspace}/repo-to-scan/report-${repo_name}.txt
       working-directory: porting-advisor
 
-    - name: Send Slack notification
-      env:
-        SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
-        CLIENT_REPOSITORY: ${{ inputs.CLIENT_REPOSITORY }}
-        workspace: ${{ env.workspace }} 
-      run: |
-        repo="${CLIENT_REPOSITORY}"
-        scan_repo=$(echo $repo | cut -d/ -f2)
-        repo_name=$(echo $repo | sed 's/\//-/g')
-        html_content1=$(sed 's/"/\\"/g' ${workspace}/repo-to-scan/report-${repo_name}.txt)
-        txt_content=$(cat ${workspace}/repo-to-scan/report-${repo_name}.txt)
-       
-        curl -X POST -H 'Content-type: application/json' -d '{"text": "Se generó un nuevo informe \n'"$(cat ${workspace}/repo-to-scan/report-${repo_name}.txt)"'"}' ${SLACK_WEBHOOK_URL}
- 
     - name: Set Environment Variable
       run: echo "REPO_NAME=$(echo $repo | sed 's/\//-/g')" >> $GITHUB_ENV
       env:
