@@ -13,7 +13,7 @@ on:
 env:
   workspace: ${{ github.workspace }}
   OIDC: arn:aws:iam::817091419779:role/GHA_SCAN
-  #ac_github_token: ${{secrets.ac_github_token}}
+  ac_github_token: ${{secrets.ac_github_token}}
 
 
 jobs:
@@ -29,6 +29,7 @@ jobs:
         path: repo-to-scan
         repository: ${{inputs.CLIENT_REPOSITORY}}
         ref: ${{inputs.BRANCH}}
+        token: ${{env.ac_github_token}}
 
     - name: Clone Client Repository
       uses: actions/checkout@v2
