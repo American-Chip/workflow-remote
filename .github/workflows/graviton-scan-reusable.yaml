@@ -8,6 +8,8 @@ on:
       BRANCH: 
         default: 'main'
         type: string
+    secrets:
+      Token_WF:
    
 
 env:
