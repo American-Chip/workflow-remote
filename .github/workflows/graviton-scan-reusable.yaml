@@ -18,7 +18,7 @@ env:
   SLACK_WEBHOOK_URL: 'https://hooks.slack.com/services/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'
   workspace: ${{ github.workspace }}
   OIDC: arn:aws:iam::817091419779:role/GHA_SCAN
-  AC_GITHUB_TOKEN: ${{secrets.ac_github_token}}
+  ac_github_token: ${{secrets.ac_github_token}}
 
 
 jobs:
