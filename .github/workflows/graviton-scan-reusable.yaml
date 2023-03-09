@@ -49,18 +49,7 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.10' 
-
-    - name: 'configure AWS credentials'
-      uses: aws-actions/configure-aws-credentials@v1-node16
-      permissions:
-        id-token: write
-      with:
-        role-to-assume: ${{ env.OIDC }} 
-        role-session-name: 'commit=${{ github.sha }}'
-        role-duration-seconds: 1100
-        aws-region:  us-east-1  
-       
-
+   
            
     - name: Install dependencies
       run: |
@@ -82,6 +71,48 @@ jobs:
         python3 ${workspace}/porting-advisor/src/porting-advisor.py ${workspace}/repo-to-scan > /${workspace}/repo-to-scan/report-${repo_name}.txt
       working-directory: porting-advisor
 
+    - name: Set output path
+      id: set_output_path
+      run: |
+        echo "::set-output name=report_html::${{ env.workspace }}/repo-to-scan/report-${repo_name}.html"
+
+
+
+jobs:
+  
+  update-repo:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+
+    - name: Use generated HTML report
+      run: |
+        report_html=${{ needs.clone-repo.outputs.report_html }}
+        
+      needs:
+        - clone-repo
+
+    - name: Save report content to file
+      run: |
+        repo='${{ inputs.CLIENT_REPOSITORY }}'
+        scan_repo=$(echo $repo | cut -d/ -f2)
+        repo_name=$(echo $repo | sed 's/\//-/g')
+        report_path=${{ env.workspace }}/report-${repo_name}.html
+        cat $report_html > $report_path
+      
+
+    - name: 'configure AWS credentials'
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        role-to-assume: ${{ env.OIDC }} 
+        role-session-name: 'commit=${{ github.sha }}'
+        role-duration-seconds: 1100
+        aws-region:  us-east-1  
+
     - name: Set Environment Variable
       run: echo "REPO_NAME=$(echo $repo | sed 's/\//-/g')" >> $GITHUB_ENV
       env:
@@ -92,5 +123,6 @@ jobs:
         repo='${{ inputs.CLIENT_REPOSITORY }}'
         scan_repo=$(echo $repo | cut -d/ -f2)
         repo_name=$(echo $repo | sed 's/\//-/g')
-        aws s3 cp ${workspace}/repo-to-scan/report-${repo_name}.html s3://prod-scan-result/repositories/report-${repo_name}.html
+        report_path=${{ env.workspace }}/report-${repo_name}.html
+        aws s3 cp $report_path s3://prod-scan-result/repositories/report-${repo_name}.html
         
