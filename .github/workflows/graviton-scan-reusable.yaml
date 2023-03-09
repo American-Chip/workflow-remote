@@ -9,7 +9,7 @@ on:
         default: 'main'
         type: string
     secrets:
-      Token_WF:
+      ac_github_token:
    
 
 env:
