@@ -80,7 +80,8 @@ jobs:
 
   update-repo:
     runs-on: ubuntu-latest
-    
+    needs:
+        - clone-repo
     permissions:
       id-token: write
       contents: read
@@ -90,9 +91,7 @@ jobs:
     - name: Use generated HTML report
       run: |
         report_html=${{ needs.clone-repo.outputs.report_html }}
-        
-      needs:
-        - clone-repo
+      
 
     - name: Save report content to file
       run: |
